@@ -1,6 +1,6 @@
 INT_MAX = 10000
 import tkinter as tk
-from math import copysign, cos, sin, pi
+from math import copysign, cos, sin, acos, pi
 import numpy as np
 
 
@@ -300,36 +300,25 @@ class World(tk.Canvas):
 ##        self.bind('<Down>', lambda event, dx=0, dy=self.DY: self.moveObject(event, dx, dy))
 ##        self.bind('<Left>', lambda event, dx=-self.DX, dy=0: self.moveObject(event, dx, dy))
 ##        self.bind('<Right>', lambda event, dx=self.DX, dy=0: self.moveObject(event, dx, dy))
-        self.bind('<Up>', lambda event, distance=10: self.go(event, distance))
-        self.bind('<Down>', lambda event, distance=-10: self.go(event, distance))
+        self.bind('<Up>', lambda event, distance=self.speed: self.go(event, distance))
+        self.bind('<Down>', lambda event, distance=-self.speed: self.go(event, distance))
         self.bind('<Left>', lambda event, angle=-15, unit='deg': self.rotateObject(event, angle, unit))
         self.bind('<Right>', lambda event, angle=15, unit='deg': self.rotateObject(event, angle, unit))
         
     def increaseSpeed(self, event):
         self.setSpeed(1)
-##        self.movingObject.setSpeed(1)
-##        self.DX += 1
-##        self.DY += 1
-##        self.bindMoveButtons()
-##        print('self.movingObject.speed:', self.movingObject.speed)
 
     def decreaseSpeed(self, event):
         self.setSpeed(-1)
-##        self.movingObject.setSpeed(-1)
-##        self.DX -= 1
-##        self.DY -= 1
-##        self.bindMoveButtons()
-##        print('self.movingObject.speed:', self.movingObject.speed)
 
     def setSpeed(self, speed):
-##        self.speed += speed
-##        self.DX += speed
-##        self.DY += speed
         self.movingObject.setSpeed(speed)
-        self.DX = self.movingObject.speed
-        self.DY = self.movingObject.speed
+        self.speed +=speed
+        print(self.speed)
+##        self.DX = self.movingObject.speed
+##        self.DY = self.movingObject.speed
+##        print('self.DY, self.DY:', self.DY, self.DY)
         self.bindMoveButtons()
-        print('self.DY, self.DY:', self.DY, self.DY)
 
     def addObject(self, name, obj):
         obj.canvas = self
@@ -338,6 +327,12 @@ class World(tk.Canvas):
             if self.movingObject == None:
                 self.movingObject = obj
                 self.setSpeed(self.movingObject.speed)
+                self.movingObject.F = Point(50, 85) #facePoint for square
+##                self.movingObject.F = Point(2, 7) #facePoint for car
+                self.movingObject.angle = acos( (self.movingObject.F.x - self.movingObject.C.x) / (self.movingObject.F.y - self.movingObject.C.y) )
+                print(self.movingObject.angle)
+                self.movingObject.angle = self.movingObject.angle * ( 180 / pi )
+                print(self.movingObject.angle)
             else:
                 print('more than one moving type object')
 
@@ -356,8 +351,12 @@ class World(tk.Canvas):
                         return True
                     elif obj.type == 'collectible':
                         print(obj.name, 'collected')
+                        self.pickUp(obj.name)
         if instersectionCount > 0:
             return True
+
+    def pickUp(self, collectibleName):
+        pass
 
     def rotateObject(self, event, angle, unit):
         origin = self.movingObject.C
@@ -458,18 +457,42 @@ corridor2 = Object([G, H, I, J, K, L, M, N], color='blue', name='corridor2', typ
 
 P1 = Point(25, 25)
 P2 = Point(25, 75)
+facePoint = Point(50, 85)
 P3 = Point(75, 75)
 P4 = Point(75, 25)
-polygon = Object([P1, P2, P3, P4], color='red', name='polygon', typee='moving')
+polygon = Object([P1, P2, facePoint, P3, P4], color='red', name='polygon', typee='moving')
 print(polygon.A)
 polygon.C.print()
 
+##P1 = Point(1, 0)
+##P2 = Point(1, 1)
+##P3 = Point(0, 1)
+##P4 = Point(0, 2)
+##P5 = Point(1, 2)
+##P6 = Point(1, 5)
+##P7 = Point(0, 5)
+##P8 = Point(0, 6)
+##P9 =  Point(1, 6)
+##P10 = Point(1, 7)
+##P11 = Point(2, 7)
+##P12 = Point(3, 5)
+##P13 = Point(4, 4)
+##P14 = Point(4, 2)
+##P15 = Point(3, 1)
+##P16 = Point(2, 0)
+##polygon = Object([P1, P2, P3, P4, P5, P6, P7, P8, P9, P10, P11, P12, P13, P14, P15, P16], color='green', name='car', typee='moving')
+####polygon.scale(polygon.C, 10)
+##polygon.translate(50, 50)
+##print(polygon.A)
+##polygon.C.print()
 
 P5 = Point(350, 250)
 P6 = Point(350, 255)
 P7 = Point(355, 255)
 P8 = Point(355, 250)
 collectible1 = Object([P5, P6, P7, P8], color='orange', name='collectible1', typee='collectible')
+
+
 
 
 root = tk.Tk()
@@ -484,7 +507,7 @@ world.addObject('collectible1', collectible1)
 ##world.rotateObject(30, 'deg')
 world.draw()
 world.setSpeed(10)
-world.setSpeed(-9)
+##world.setSpeed(-9)
 root.mainloop()
 
 
